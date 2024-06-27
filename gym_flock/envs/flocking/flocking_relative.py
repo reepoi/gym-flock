@@ -207,6 +207,8 @@ class FlockingRelativeEnv(gym.Env):
 
         p_sum = np.sum(potentials, axis=1).reshape((self.n_agents, self.nx_system + 2))
         controls =  np.hstack(((-  p_sum[:, 4] - p_sum[:, 2]).reshape((-1, 1)), (- p_sum[:, 3] - p_sum[:, 5]).reshape(-1, 1)))
+
+        # BUG: the flocking paper claims the controls are clamped to $\pm 100$, but this clamps to $\pm 10$.
         controls = np.clip(controls, -10, 10)
         controls = controls / self.action_scalar
         return controls
