@@ -32,7 +32,7 @@ class FlockingRelativeEnv(gym.Env):
         # numer of observations per agent
         self.n_features = 6
         # number of actions per agent
-        self.nu = 2 
+        self.nu = 2
 
         # default problem parameters
         self.n_agents = 100  # int(config['network_size'])
@@ -44,7 +44,7 @@ class FlockingRelativeEnv(gym.Env):
 
         self.comm_radius2 = self.comm_radius * self.comm_radius
         self.vr = 1 / self.comm_radius2 + np.log(self.comm_radius2)
-        self.v_bias = self.v_max 
+        self.v_bias = self.v_max
 
         # intitialize state matrices
         self.x = None
@@ -119,7 +119,7 @@ class FlockingRelativeEnv(gym.Env):
         # Normalize the adjacency matrix by the number of neighbors - results in mean pooling, instead of sum pooling
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
         n_neighbors[n_neighbors == 0] = 1
-        self.adj_mat_mean = self.adj_mat / n_neighbors 
+        self.adj_mat_mean = self.adj_mat / n_neighbors
 
         self.x_features = np.dstack((self.diff[:, :, 2], np.divide(self.diff[:, :, 0], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 0], self.r2),
                           self.diff[:, :, 3], np.divide(self.diff[:, :, 1], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 1], self.r2)))
@@ -161,7 +161,7 @@ class FlockingRelativeEnv(gym.Env):
 
         # generate an initial configuration with all agents connected,
         # and minimum distance between agents > min_dist_thresh
-        while degree < 2 or min_dist < min_dist_thresh: 
+        while degree < 2 or min_dist < min_dist_thresh:
 
             # randomly initialize the location and velocity of all agents
             length = np.sqrt(np.random.uniform(0, self.r_max, size=(self.n_agents,)))
@@ -170,8 +170,8 @@ class FlockingRelativeEnv(gym.Env):
             x[:, 1] = length * np.sin(angle)
 
             bias = np.random.uniform(low=-self.v_bias, high=self.v_bias, size=(2,))
-            x[:, 2] = np.random.uniform(low=-self.v_max, high=self.v_max, size=(self.n_agents,)) + bias[0] 
-            x[:, 3] = np.random.uniform(low=-self.v_max, high=self.v_max, size=(self.n_agents,)) + bias[1] 
+            x[:, 2] = np.random.uniform(low=-self.v_max, high=self.v_max, size=(self.n_agents,)) + bias[0]
+            x[:, 3] = np.random.uniform(low=-self.v_max, high=self.v_max, size=(self.n_agents,)) + bias[1]
 
             # compute distances between agents
             x_loc = np.reshape(x[:, 0:2], (self.n_agents,2,1))
@@ -200,10 +200,10 @@ class FlockingRelativeEnv(gym.Env):
         if centralized is None:
             centralized = self.centralized
 
-        # TODO use the helper quantities here more? 
+        # TODO use the helper quantities here more?
         potentials = np.dstack((self.diff, self.potential_grad(self.diff[:, :, 0], self.r2), self.potential_grad(self.diff[:, :, 1], self.r2)))
         if not centralized:
-            potentials = potentials * self.adj_mat.reshape(self.n_agents, self.n_agents, 1) 
+            potentials = potentials * self.adj_mat.reshape(self.n_agents, self.n_agents, 1)
 
         p_sum = np.sum(potentials, axis=1).reshape((self.n_agents, self.nx_system + 2))
         controls =  np.hstack(((-  p_sum[:, 4] - p_sum[:, 2]).reshape((-1, 1)), (- p_sum[:, 3] - p_sum[:, 5]).reshape(-1, 1)))
@@ -223,7 +223,7 @@ class FlockingRelativeEnv(gym.Env):
         """
         grad = -2.0 * np.divide(pos_diff, np.multiply(r2, r2)) + 2 * np.divide(pos_diff, r2)
         grad[r2 > self.comm_radius] = 0
-        return grad 
+        return grad
 
     def potential(self, r2):
         p = np.reciprocal(r2) + np.log(r2)
@@ -245,8 +245,8 @@ class FlockingRelativeEnv(gym.Env):
             plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
             a = gca()
-            a.set_xticklabels(a.get_xticks(), font)
-            a.set_yticklabels(a.get_yticks(), font)
+            # a.set_xticklabels(a.get_xticks(), font)
+            # a.set_yticklabels(a.get_yticks(), font)
             plt.title('GNN Controller')
             self.fig = fig
             self.line1 = line1
@@ -302,4 +302,4 @@ class FlockingRelativeEnv(gym.Env):
 
     def close(self):
         pass
- 
+
